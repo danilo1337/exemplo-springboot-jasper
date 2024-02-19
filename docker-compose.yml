@@ -1,0 +1,20 @@
+version: '3.3'
+services:
+   inventory-db:
+     image: mcr.microsoft.com/mssql/server:latest
+     network_mode: bridge
+     environment:
+       ACCEPT_EULA: Y
+       SA_PASSWORD: supersecreta_Senha123
+       MSSQL_PID: Developer
+     ports:
+       - 1433:1433
+
+   relatorios:
+      build: './relatorios'
+      container_name: relatorios
+      network_mode: bridge
+      depends_on:
+        - inventory-db      
+      ports:
+        - 8080:8080
