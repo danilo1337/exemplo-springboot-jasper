@@ -8,7 +8,8 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
+
+import com.github.danilo1337.util.JasperUtil;
 
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -18,19 +19,20 @@ import net.sf.jasperreports.engine.JasperPrint;
 
 @Service
 public class RelatorioService {
-	
+
 	@Autowired
 	private DataSource dataSource;
-	
-	public byte[] imprimirComBancoDeDados(String nomeArquivo, 	Map<String, Object> parametros) {
-		
+
+	public byte[] imprimirComBancoDeDados(String nomeArquivo, Map<String, Object> parametros) {
+
 		try {
-			
+
 			Connection connection = DataSourceUtils.getConnection(dataSource);
-			
-			String path = ResourceUtils.getFile("classpath:"+"jasper/"+nomeArquivo).getAbsolutePath();
 
-			JasperPrint jasperPrint = JasperFillManager.fillReport(JasperCompileManager.compileReport(path), parametros, connection);
+			String path = new JasperUtil().obterCaminhoArquivo(nomeArquivo);
+
+			JasperPrint jasperPrint = JasperFillManager.fillReport(JasperCompileManager.compileReport(path), parametros,
+					connection);
 
 			byte[] pdfBytes = JasperExportManager.exportReportToPdf(jasperPrint);
 
@@ -41,14 +43,15 @@ public class RelatorioService {
 		}
 		return null;
 	}
-	
-	public byte[] imprimirSemBancoDeDados(String nomeArquivo, 	Map<String, Object> parametros) {
-		
+
+	public byte[] imprimirSemBancoDeDados(String nomeArquivo, Map<String, Object> parametros) {
+
 		try {
-			
-			String path = ResourceUtils.getFile("classpath:"+"jasper/"+nomeArquivo).getAbsolutePath();
 
-			JasperPrint jasperPrint = JasperFillManager.fillReport(JasperCompileManager.compileReport(path), parametros, new JREmptyDataSource());
+			String path = new JasperUtil().obterCaminhoArquivo(nomeArquivo);
+
+			JasperPrint jasperPrint = JasperFillManager.fillReport(JasperCompileManager.compileReport(path), parametros,
+					new JREmptyDataSource());
 
 			byte[] pdfBytes = JasperExportManager.exportReportToPdf(jasperPrint);
 
@@ -60,5 +63,4 @@ public class RelatorioService {
 		return null;
 	}
 
-	
 }
