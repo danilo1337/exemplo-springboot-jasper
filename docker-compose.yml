@@ -1,20 +1,35 @@
 version: '3.3'
 services:
-   inventory-db:
-     image: mcr.microsoft.com/mssql/server:latest
-     network_mode: bridge
-     environment:
-       ACCEPT_EULA: Y
-       SA_PASSWORD: supersecreta_Senha123
-       MSSQL_PID: Developer
-     ports:
-       - 1433:1433
 
-   relatorios:
+  inventory-db:
+    container_name: inventory-db
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: inventory-db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /data/postgres
+    networks:
+      - rede-relatorios      
+    ports:
+      - "5432:5432"  
+
+  relatorios:
       build: './relatorios'
       container_name: relatorios
-      network_mode: bridge
       depends_on:
-        - inventory-db      
+        - inventory-db
+      networks:
+        - rede-relatorios
+      environment:
+        - DB_HOST=inventory-db
+        - DB_PORT=5432
+        - DB_NAME=inventory-db
+        - DB_USER=postgres
+        - DB_PASSWORD=postgres        
       ports:
         - 8080:8080
+
+networks:
+  rede-relatorios:
+    driver: bridge
